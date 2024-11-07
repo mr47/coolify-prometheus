@@ -1,0 +1,45 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 10s
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'docker-host-alpha'
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+#rule_files:
+#  - "alert.rules"
+
+# A scrape configuration containing exactly one endpoint to scrape.
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9100']
+
+  - job_name: 'nodeexporter'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['nodeexporter:9101']
+
+  - job_name: 'cadvisor'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['cadvisor:9102']
+
+  - job_name: 'pushgateway'
+    scrape_interval: 5s
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9103']
+
+  - job_name: 'coolify-proxy'
+    static_configs:
+      - targets: ['coolify-proxy:8082']
+
+  - job_name: 'clamav-prometheus-exporter'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['clamav-prometheus-exporter:9810']
