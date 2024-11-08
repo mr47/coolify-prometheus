@@ -61,6 +61,6 @@ services:
   clamav-prometheus-exporter:
     image: rekzi/clamav-prometheus-exporter:latest
     command:
-      - '--clamav-address=clamav-aocc8s440kggg8ow80g80c4o'
+      - '--clamav-address=clamd-aocc8s440kggg8ow80g80c4o'
     ports:
       - 9104:9810
