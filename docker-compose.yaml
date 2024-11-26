@@ -49,7 +49,7 @@ services:
       - /cgroup:/cgroup:ro
     restart: unless-stopped
     ports:
-      - 9102:8080
+      - 9108:8080
 
   pushgateway:
     image: prom/pushgateway:v1.10.0
