@@ -19,6 +19,8 @@ services:
     restart: unless-stopped
     ports:
       - 9100:9090
+    labels:
+      - "traefik.http.middlewares.test-auth.basicauth.users=admin:$$2y$$12$$mjAFzVnFWgBQzkGUIJ5AR.tHbAgLTsJdmLSPjEQ/QyI7CoQdB4Uti"
 
   nodeexporter:
     image: prom/node-exporter:v1.8.2
