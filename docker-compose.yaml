@@ -83,6 +83,8 @@ services:
     depends_on:
       - loki
     hostname: promtail
+    ports:
+      - 9080:9080
     volumes:
       - /var/log:/var/log
       - ./promtail:/etc/promtail
