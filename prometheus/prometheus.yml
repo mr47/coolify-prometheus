@@ -11,9 +11,6 @@ global:
 #rule_files:
 #  - "alert.rules"
 
-basic_auth_users:
-  admin:$2y$12$mjAFzVnFWgBQzkGUIJ5AR.tHbAgLTsJdmLSPjEQ/QyI7CoQdB4Uti
-
 # A scrape configuration containing exactly one endpoint to scrape.
 scrape_configs:
   - job_name: 'prometheus'
