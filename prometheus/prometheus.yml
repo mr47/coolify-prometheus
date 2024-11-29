@@ -18,7 +18,7 @@ scrape_configs:
     scheme: http
     basic_auth:
       username: admin
-      password: "${PROMETHEUS_ADMIN_PASSWORD}"
+      password: '${PROMETHEUS_ADMIN_PASSWORD}'
     static_configs:
       - targets: ['prometheus:9090']
 
