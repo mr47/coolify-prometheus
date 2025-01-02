@@ -90,3 +90,13 @@ services:
       - /data/coolify/logs:/var/log/traefik
     restart: unless-stopped
     command: -config.file=/etc/promtail/promtail-config.yml
+
+  mktxp:
+    container_name: mktxp
+    image: ghcr.io/akpw/mktxp:latest
+    user: root
+    volumes:
+      - './mktxp/:/root/mktxp/'
+    ports:
+      - "49090:49090"
+    restart: unless-stopped
