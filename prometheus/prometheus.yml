@@ -67,4 +67,4 @@ scrape_configs:
 
   - job_name: 'cloudflared'
     static_configs:
-      - targets: ['cloudflared-a8gw8884swsg0go0wcw4cc8s:60123']
+      - targets: ['localhost:60123']
