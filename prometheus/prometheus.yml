@@ -64,3 +64,7 @@ scrape_configs:
     scrape_interval: 10s
     static_configs:
       - targets: ['mktxp:49090']
+
+  - job_name: 'cloudflared'
+    static_configs:
+      - targets: ['cloudflared-a8gw8884swsg0go0wcw4cc8s:60123']
