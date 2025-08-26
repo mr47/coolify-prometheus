@@ -59,7 +59,7 @@ services:
     container_name: pushgateway
     restart: unless-stopped
     ports:
-      - 9103:9091
+      - 9119:9091
 
   clamav-prometheus-exporter:
     image: rekzi/clamav-prometheus-exporter:latest
