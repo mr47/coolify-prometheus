@@ -25,3 +25,59 @@ scrape_configs:
         labels:
           job: traefiklogs
           __path__: /var/log/traefik/*.log
+
+  # traefik JSON access logs - web analytics
+  - job_name: traefik-access-logs
+    pipeline_stages:
+      # extract json fields to make them available as labels
+      - json:
+          expressions:
+            client_host: ClientHost
+            user_agent: '"request_User-Agent"'
+            request_path: RequestPath
+            request_method: RequestMethod
+            origin_status: OriginStatus
+            request_referer: '"request_Referer"'
+      # GeoIP lookup from client_host
+      - geoip:
+          source: client_host
+          db: /etc/promtail/GeoLite2-City.mmdb
+          db_type: city
+      # drop verbose geoip labels to stay within Loki label limits
+      - labeldrop:
+          - geoip_postal_code
+          - geoip_subdivision_code
+          - geoip_continent_code
+          - geoip_continent_name
+          - geoip_subdivision_name
+          - geoip_timezone
+      # regex to extract OS from user_agent
+      - regex:
+          source: user_agent
+          expression: '(?P<OS>Windows \w+ \d+(?:\.\d+)*|Linux(?: (?:i686|x86_64))?|Macintosh|(?:CPU )?iPhone OS|CPU OS.*?like Mac OS X)'
+      # regex to extract Device type from user_agent
+      - regex:
+          source: user_agent
+          expression: '(?P<Device>iPhone|iPad|Mobile|Android(?: \d+(?:\.\d+)*))'
+      # regex to extract Browser from user_agent
+      - regex:
+          source: user_agent
+          expression: '(?P<Browser>(MSIE|(?:Mobile )?Safari|Chrome|\b\w+\b Chromium|Firefox|Version|Mobile|GSA|QuickLook|OPR)[ \/](?:[A-Z\d]+\b|\d+(?:\.\d+)*))'
+      # promote extracted fields to labels
+      - labels:
+          client_host:
+          user_agent:
+          request_path:
+          request_method:
+          origin_status:
+          request_referer:
+          OS:
+          Device:
+          Browser:
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: traefik-access
+          host: localhost
+          __path__: /var/log/traefik-access/*.json

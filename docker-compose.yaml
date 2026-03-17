@@ -87,7 +87,9 @@ services:
     volumes:
       - /var/log:/var/log
       - ./promtail:/etc/promtail
-      - /data/coolify/logs:/var/log/traefik
+      - /data/coolify/proxy/logs:/var/log/traefik
+      - /data/coolify/proxy/access-logs:/var/log/traefik-access
+      - "./GeoLite2-City.mmdb:/etc/promtail/GeoLite2-City.mmdb"
     restart: unless-stopped
     command: -config.file=/etc/promtail/promtail-config.yml
 
