@@ -81,17 +81,17 @@ loki.process "traefik_access" {
     db_type = "city"
   }
 
-  // promote geoip fields to structured metadata (Loki v3)
-  stage.structured_metadata {
-    values = {
-      geoip_country_name        = "",
-      geoip_city_name           = "",
-      geoip_location_latitude   = "",
-      geoip_location_longitude  = "",
-    }
+  // embed geoip fields into the JSON log line so | json can parse them
+  stage.template {
+    source   = "geoip_line"
+    template = `{{ trimSuffix "}" .Entry }},"geoip_country_name":"{{ .geoip_country_name }}","geoip_city_name":"{{ .geoip_city_name }}","geoip_location_latitude":"{{ .geoip_location_latitude }}","geoip_location_longitude":"{{ .geoip_location_longitude }}"}`
   }
 
-  // drop all geoip labels (now stored as structured metadata)
+  stage.output {
+    source = "geoip_line"
+  }
+
+  // drop all geoip labels (data is now in the log line)
   stage.label_drop {
     values = [
       "geoip_postal_code",
