@@ -1,3 +1,5 @@
+Update
+
 # Traefik Commands for Current Setup
 
 These commands should be added to the Coolify proxy Traefik `command:` section.
