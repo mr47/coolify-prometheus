@@ -70,17 +70,28 @@ loki.process "traefik_access" {
       request_host    = "RequestHost",
       service_name    = "ServiceName",
       router_name     = "RouterName",
+      cf_connecting_ip = "\"request_Cf-Connecting-Ip\"",
     }
   }
 
-  // GeoIP lookup from client_host
+  // GeoIP lookup from real client IP (Cf-Connecting-Ip)
   stage.geoip {
-    source  = "client_host"
+    source  = "cf_connecting_ip"
     db      = "/etc/alloy/GeoLite2-City.mmdb"
     db_type = "city"
   }
 
-  // drop verbose geoip labels
+  // promote geoip fields to structured metadata (Loki v3)
+  stage.structured_metadata {
+    values = {
+      geoip_country_name        = "",
+      geoip_city_name           = "",
+      geoip_location_latitude   = "",
+      geoip_location_longitude  = "",
+    }
+  }
+
+  // drop all geoip labels (now stored as structured metadata)
   stage.label_drop {
     values = [
       "geoip_postal_code",
@@ -89,6 +100,10 @@ loki.process "traefik_access" {
       "geoip_continent_name",
       "geoip_subdivision_name",
       "geoip_timezone",
+      "geoip_country_name",
+      "geoip_city_name",
+      "geoip_location_latitude",
+      "geoip_location_longitude",
     ]
   }
 

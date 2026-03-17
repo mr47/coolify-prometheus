@@ -30,6 +30,9 @@ command:
   - '--providers.file.directory=/traefik/dynamic/'
   - '--providers.file.watch=true'
   - '--metrics.prometheus=true'
+  # dedicated metrics entrypoint for Prometheus scraping
+  - '--entrypoints.metrics.address=:8082'
+  - '--metrics.prometheus.entryPoint=metrics'
   #- '--certificatesresolvers.letsencrypt.acme.httpchallenge=true'
   #- '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http'
   #- '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
@@ -76,8 +79,7 @@ command:
 
 ## Loki 3.x Upgrade Notes
 
-- Schema upgraded from `v11` (boltdb-shipper) to `v13` (TSDB) starting 2026-03-18
-- Old schema entry retained for backward compatibility with existing data
+- Schema upgraded to `v13` (TSDB), old `v11` (boltdb-shipper) entry removed (unsupported in Loki 3.6.x)
 - `compress_responses` removed (deprecated in Loki 3.x)
 - User changed from `1000:1000` to `10001:10001` (Loki 3.x default)
 

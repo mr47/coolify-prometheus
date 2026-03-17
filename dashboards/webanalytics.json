@@ -487,14 +487,6 @@
       "title": "Access Map",
       "transformations": [
         {
-          "id": "extractFields",
-          "options": {
-            "keepTime": false,
-            "replace": true,
-            "source": "labels"
-          }
-        },
-        {
           "id": "convertFieldType",
           "options": {
             "conversions": [
