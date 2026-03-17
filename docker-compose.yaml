@@ -3,7 +3,7 @@ volumes:
 
 services:
   prometheus:
-    image: prom/prometheus:v3.0.1
+    image: prom/prometheus:v3.10.0
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -23,7 +23,7 @@ services:
       - "traefik.http.middlewares.test-auth.basicauth.users=admin:$2y$12$mjAFzVnFWgBQzkGUIJ5AR.tHbAgLTsJdmLSPjEQ/QyI7CoQdB4Uti"
 
   nodeexporter:
-    image: prom/node-exporter:v1.8.2
+    image: prom/node-exporter:v1.10.2
     container_name: nodeexporter
     volumes:
       - /proc:/host/proc:ro
@@ -39,7 +39,7 @@ services:
       - 9101:9100
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
     privileged: true
     devices:
@@ -55,7 +55,7 @@ services:
       - 9108:8080
 
   pushgateway:
-    image: prom/pushgateway:v1.10.0
+    image: prom/pushgateway:v1.11.2
     container_name: pushgateway
     restart: unless-stopped
     ports:
