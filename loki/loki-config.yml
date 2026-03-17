@@ -29,16 +29,7 @@ limits_config:
 
 schema_config:
   configs:
-    # keep old schema entry for existing data compatibility
     - from: 2024-11-28
-      store: boltdb-shipper
-      object_store: filesystem
-      schema: v11
-      index:
-        prefix: index_
-        period: 24h
-    # new schema for Loki 3.x
-    - from: 2026-03-17
       store: tsdb
       object_store: filesystem
       schema: v13
