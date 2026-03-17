@@ -28,10 +28,19 @@ limits_config:
 
 schema_config:
   configs:
+    # keep old schema entry for existing data compatibility
     - from: 2024-11-28
       store: boltdb-shipper
       object_store: filesystem
       schema: v11
+      index:
+        prefix: index_
+        period: 24h
+    # new schema for Loki 3.x
+    - from: 2026-03-18
+      store: tsdb
+      object_store: filesystem
+      schema: v13
       index:
         prefix: index_
         period: 24h
@@ -44,7 +53,6 @@ querier:
 
 frontend:
   max_outstanding_per_tenant: 4096
-  compress_responses: true
 
 #ruler:
 #  alertmanager_url: http://localhost:9093

@@ -49,17 +49,35 @@ command:
 
 ## Path Mapping
 
-| Purpose | Traefik container path | Host path | Promtail container path |
+| Purpose | Traefik container path | Host path | Alloy container path |
 |---|---|---|---|
 | General logs | `/traefik/logs/traefik.log` | `/data/coolify/proxy/logs/traefik.log` | `/var/log/traefik/*.log` |
 | Access logs (JSON) | `/traefik/access-logs/access.json` | `/data/coolify/proxy/access-logs/access.json` | `/var/log/traefik-access/*.json` |
 | System auth log | n/a | `/var/log/auth.log` | `/var/log/auth.log` |
 
-## Promtail Jobs
+## Stack Versions
 
-- **`auth`** — System auth logs (SSH, sudo, etc.)
-- **`traefik`** — General Traefik logs (plain text)
-- **`traefik-access-logs`** — JSON access logs with web analytics pipeline (OS, Browser, Device, GeoIP)
+| Component | Version |
+|---|---|
+| Prometheus | v3.10.0 |
+| Loki | v3.6.7 |
+| Grafana Alloy | v1.14.0 (replaces Promtail) |
+| Node Exporter | v1.10.2 |
+| cAdvisor | v0.55.1 |
+| Pushgateway | v1.11.2 |
+
+## Alloy Log Collection Jobs
+
+- **`auth`** — System auth logs (`/var/log/auth.log`)
+- **`traefik`** — General Traefik logs (plain text, `/var/log/traefik/*.log`)
+- **`traefik_access`** — JSON access logs with web analytics pipeline (OS, Browser, Device, GeoIP)
+
+## Loki 3.x Upgrade Notes
+
+- Schema upgraded from `v11` (boltdb-shipper) to `v13` (TSDB) starting 2026-03-18
+- Old schema entry retained for backward compatibility with existing data
+- `compress_responses` removed (deprecated in Loki 3.x)
+- User changed from `1000:1000` to `10001:10001` (Loki 3.x default)
 
 ## Reference
 

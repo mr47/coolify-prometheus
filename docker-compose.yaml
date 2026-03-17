@@ -69,29 +69,33 @@ services:
       - 9104:9810
 
   loki:
-    image: grafana/loki:2.9.10
+    image: grafana/loki:3.6.7
     container_name: loki
     volumes:
       - ./loki:/etc/loki
     ports:
       - "3100:3100"
     restart: unless-stopped
-    user: 1000:1000
+    user: 10001:10001
     command: -config.file=/etc/loki/loki-config.yml
 
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
+  alloy:
+    image: grafana/alloy:v1.14.0
+    container_name: alloy
     ports:
-      - 9080:9080
+      - 9080:12345
     volumes:
       - /var/log:/var/log
-      - ./promtail:/etc/promtail
+      - ./alloy:/etc/alloy
       - /data/coolify/proxy/logs:/var/log/traefik
       - /data/coolify/proxy/access-logs:/var/log/traefik-access
-      - "./GeoLite2-City.mmdb:/etc/promtail/GeoLite2-City.mmdb"
+      - "./GeoLite2-City.mmdb:/etc/alloy/GeoLite2-City.mmdb"
     restart: unless-stopped
-    command: -config.file=/etc/promtail/promtail-config.yml
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/tmp/alloy
+      - --server.http.listen-addr=0.0.0.0:12345
 
   mktxp:
     container_name: mktxp

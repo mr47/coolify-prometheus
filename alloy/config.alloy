@@ -1,0 +1,130 @@
+// Loki endpoint
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+  external_labels = {}
+}
+
+// ============================================================
+// Job: auth - system auth logs
+// ============================================================
+local.file_match "auth" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/var/log/auth.log",
+    job         = "authlogs",
+  }]
+}
+
+loki.source.file "auth" {
+  targets    = local.file_match.auth.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+// ============================================================
+// Job: traefik - general traefik logs (plain text)
+// ============================================================
+local.file_match "traefik" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/var/log/traefik/*.log",
+    job         = "traefiklogs",
+  }]
+}
+
+loki.source.file "traefik" {
+  targets    = local.file_match.traefik.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+// ============================================================
+// Job: traefik-access-logs - JSON access logs for web analytics
+// ============================================================
+local.file_match "traefik_access" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/var/log/traefik-access/*.json",
+    job         = "traefik-access",
+    host        = "localhost",
+  }]
+}
+
+loki.source.file "traefik_access" {
+  targets    = local.file_match.traefik_access.targets
+  forward_to = [loki.process.traefik_access.receiver]
+}
+
+loki.process "traefik_access" {
+  forward_to = [loki.write.default.receiver]
+
+  // extract json fields
+  stage.json {
+    expressions = {
+      client_host     = "ClientHost",
+      user_agent      = "\"request_User-Agent\"",
+      request_path    = "RequestPath",
+      request_method  = "RequestMethod",
+      origin_status   = "OriginStatus",
+      request_referer = "\"request_Referer\"",
+      request_host    = "RequestHost",
+      service_name    = "ServiceName",
+      router_name     = "RouterName",
+    }
+  }
+
+  // GeoIP lookup from client_host
+  stage.geoip {
+    source  = "client_host"
+    db      = "/etc/alloy/GeoLite2-City.mmdb"
+    db_type = "city"
+  }
+
+  // drop verbose geoip labels
+  stage.label_drop {
+    values = [
+      "geoip_postal_code",
+      "geoip_subdivision_code",
+      "geoip_continent_code",
+      "geoip_continent_name",
+      "geoip_subdivision_name",
+      "geoip_timezone",
+    ]
+  }
+
+  // regex to extract OS from user_agent
+  stage.regex {
+    source     = "user_agent"
+    expression = "(?P<OS>Windows \\w+ \\d+(?:\\.\\d+)*|Linux(?: (?:i686|x86_64))?|Macintosh|(?:CPU )?iPhone OS|CPU OS.*?like Mac OS X)"
+  }
+
+  // regex to extract Device type from user_agent
+  stage.regex {
+    source     = "user_agent"
+    expression = "(?P<Device>iPhone|iPad|Mobile|Android(?: \\d+(?:\\.\\d+)*))"
+  }
+
+  // regex to extract Browser from user_agent
+  stage.regex {
+    source     = "user_agent"
+    expression = "(?P<Browser>(MSIE|(?:Mobile )?Safari|Chrome|\\b\\w+\\b Chromium|Firefox|Version|Mobile|GSA|QuickLook|OPR)[ /](?:[A-Z\\d]+\\b|\\d+(?:\\.\\d+)*))"
+  }
+
+  // promote extracted fields to labels
+  stage.labels {
+    values = {
+      client_host     = "",
+      user_agent      = "",
+      request_path    = "",
+      request_method  = "",
+      origin_status   = "",
+      request_referer = "",
+      request_host    = "",
+      service_name    = "",
+      router_name     = "",
+      OS              = "",
+      Device          = "",
+      Browser         = "",
+    }
+  }
+}
